@@ -1,0 +1,14 @@
+default:
+    suites:
+        default:
+            contexts:
+                - FeatureContext:
+    gherkin:
+        cache: ~
+    extensions:
+        Behat\MinkExtension: 
+            base_url: http://en.wikipedia.org/
+            goutte: ~
+        Vanare\BehatCucumberJsonFormatter\Extension:
+            filename: report.json
+            outputDir: %paths.base%/build/tests/behat
