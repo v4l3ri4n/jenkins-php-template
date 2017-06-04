@@ -1,4 +1,4 @@
-jenkins-tests
-=============
+jenkins-php-template
+====================
 
-A Symfony project created on May 29, 2017, 9:55 am.
+A Jenkins template with Jenkinsfile for PHP projects.

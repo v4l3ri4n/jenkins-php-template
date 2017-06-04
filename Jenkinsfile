@@ -1,16 +1,3 @@
-/*
- * TODO :
- * - implement coverage report
- * - debug style output error on phpspec reports
- * - implement taurus http://gettaurus.org
- * - expose tests outputs for : phpdepend, violations (not compatible with pipeline), maybe external sh script or xsl transformation, or call to other job
- * - phpmetrics not generating xml outputs
- * - run tests over docker images
- * - template for the different stage :
- *      . publish on DEV environment
- *      . publish on STAGING environment with prompt (staging: as near as possible as the prod env)
- *      . publish on PRODUCTION environment with prompt
- */
 pipeline {
     agent any
     
@@ -93,6 +80,9 @@ pipeline {
             }
             post {
                 success {
+					//
+					// publish phpcs output
+					//
                     step(
                         [
                             $class: 'CheckStylePublisher',
@@ -101,6 +91,9 @@ pipeline {
                             usePreviousBuildAsReference: false
                         ]
                     )
+					//
+					// publish phpdepend outputs
+					//
                     publishHTML(
                         target: [
                             reportName: 'PDepend Pyramid graph',
@@ -117,6 +110,9 @@ pipeline {
                             keepAll: true
                         ]
                     )
+					//
+					// publish phpmd output
+					//
                     step(
                         [
                             $class: 'PmdPublisher',
@@ -128,6 +124,9 @@ pipeline {
                             unstableTotalAll: '999'
                         ]
                     )
+					//
+					// publish phpcpd output
+					//
                     step(
                         [
                             $class: 'DryPublisher',
@@ -136,6 +135,9 @@ pipeline {
                             normalThreshold: 25
                         ]
                     )
+					//
+					// publish phpdow output
+					//
                     publishHTML(
                         target: [
                             reportName: 'API Documentation (phpdox)',
@@ -144,6 +146,9 @@ pipeline {
                             keepAll: true
                         ]
                     )
+					//
+					// publish phdoc output
+					//
                     publishHTML(
                         target: [
                             reportName: 'API Documentation (phpdoc)',
@@ -152,6 +157,9 @@ pipeline {
                             keepAll: true
                         ]
                     )
+					//
+					// publish phploc output
+					//
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-1.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Lines of Code (LOC),Comment Lines of Code (CLOC),Non-Comment Lines of Code (NCLOC),Logical Lines of Code (LLOC)', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false,  group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'A - Lines of code', useDescr: false, yaxis: 'Lines of code', yaxisMaximum: '', yaxisMinimum: ''])
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-2.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Directories,Files,Namespaces,Interfaces,Classes,Methods,Functions,Anonymous Functions,Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false, group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'B - Structures Containers', useDescr: false, yaxis: 'Count', yaxisMaximum: '', yaxisMinimum: ''])
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-3.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Test Classes,Test Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false, group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'C - Testing', useDescr: false, yaxis: 'Count', yaxisMaximum: '', yaxisMinimum: ''])
@@ -163,6 +171,9 @@ pipeline {
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-9.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Cyclomatic Complexity / Lines of Code,Cyclomatic Complexity / Number of Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false, group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'I - Relative Cyclomatic Complexity', useDescr: false, yaxis: 'Cyclomatic Complexity by Structure', yaxisMaximum: '', yaxisMinimum: ''])
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-10.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Logical Lines of Code (LLOC),Classes Length (LLOC),Functions Length (LLOC),LLOC outside functions or classes', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false, group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'AB - Code Structure by Logical Lines of Code', useDescr: false, yaxis: 'Logical Lines of Code', yaxisMaximum: '', yaxisMinimum: ''])
                     step([$class: 'PlotBuilder', csvFileName: 'plot-phploc-11.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Interfaces,Traits,Classes,Methods,Functions,Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], exclZero: false, group: 'phploc', keepRecords: false, logarithmic: false, numBuilds: '100', style: 'line', title: 'BB - Structure Objects', useDescr: false, yaxis: 'Count', yaxisMaximum: '', yaxisMinimum: ''])
+					//
+					// publish phpcb output
+					//
                     publishHTML(
                         target: [
                             reportName: 'Code Browser',
@@ -171,6 +182,9 @@ pipeline {
                             keepAll: true
                         ]
                     )
+					//
+					// publish phpmetrics output
+					//
                     publishHTML(
                         target: [
                             reportName: 'PhpMetrics',
@@ -201,7 +215,13 @@ pipeline {
             }
             post {
                 success {
+					//
+					// publish phpunit output
+					//
                     junit 'build/tests/phpunit/junit.xml'
+					//
+					// publish phpspec output
+					//
                     junit 'build/tests/phpspec/junit.xml'
                     publishHTML(
                         target: [
@@ -211,6 +231,9 @@ pipeline {
                             keepAll: true
                         ]
                     )
+					//
+					// publish behat output
+					//
                     junit 'build/tests/behat/default.xml'
                     publishHTML(
                         target: [
